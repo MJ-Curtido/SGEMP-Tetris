@@ -179,8 +179,8 @@ while not done:
                 game.__init__(20, 10)
 
     if event.type == pygame.KEYUP:
-            if event.key == pygame.K_DOWN:
-                pressing_down = False
+        if event.key == pygame.K_DOWN:
+            pressing_down = False
 
     screen.fill(WHITE)
 

@@ -1,23 +1,15 @@
 from pieza import *
-#py -m pip install pygame --pre
+
 class Tablero:
     level = 2
-    puntuacion = 0
-    modo = 1
-    filas = []
-    alto = 0
-    ancho = 0
-    x = 100
-    y = 60
-    zoom = 20
+    tamanyoCelda = 20
     pieza = None
 
     def __init__(self):
         self.alto = 20
         self.ancho = 10
         self.filas = []
-        self.puntuacion = 0
-        self.modo = 1
+        self.modo = 1 #Modo = 1 => Continúa el juego; Modo = 2 => Juego terminado
 
         #Creamos el tablero según las dimensiones establecidas arriba, creando filas rellenas de ceros y guardándolas en el array de filas
         for i in range(self.alto):
@@ -30,7 +22,7 @@ class Tablero:
 
     #Método que crea figuras cada vez que lo llame, estableciendo la x e y en la primera fila aproximadamente en el medio
     def crearFigura(self):
-        self.pieza = Pieza(3, 0)
+        self.pieza = Pieza()
 
     #Método que te devuelve si la pieza está fuera de los límites o no
     def fueraDeLimite(self):
@@ -56,22 +48,28 @@ class Tablero:
         #Recorremos nuestro esquema que contiene las figuras
         for i in range(4):
             for j in range(4):
-                #Comprobamos que la celda esté dentro de la figura
-                if i * 4 + j in self.pieza.image():
-                    self.filas[i + self.pieza.y][j + self.pieza.x] = self.pieza.color
-        self.break_lines()
-        self.new_figure()
-        if self.intersects():
+                #Comprobamos que la celda esté dentro de la figura y la coloreamos
+                if i * 4 + j in self.pieza.limitePieza():
+                    self.filas[i + self.pieza.y][j + self.pieza.x] = self.pieza.colorPieza
+        #Una vez parada, creamos una nueva figura que aparecerá arriba
+        self.crearFigura()
+
+        #Si esa figura nueva creada está fuera de los límites porque ya haya una figura ahí, hemos perdido y ponemos el modo en 0
+        if self.fueraDeLimite():
             self.modo = 0
 
+    #Método con el que movemos la pieza lateralmente en el caso de que no se salga de los límites ya sea fuera del tablero o chocándose con otra pieza
     def movLateral(self, nuevaX):
         antiguaX = self.pieza.x
-        self.pieza.x += nuevaPos
-        if self.dentroDeLimite():
+        self.pieza.x += nuevaX
+
+        if self.fueraDeLimite():
             self.pieza.x = antiguaX
 
-    def rotate(self):
-        old_rotation = self.pieza.rotation
-        self.pieza.rotate()
-        if self.intersects():
-            self.pieza.rotation = old_rotation
+    #Método con el que giramos la pieza en el caso de que no se salga de los límites ya sea fuera del tablero o chocándose con otra pieza
+    def girarPieza(self):
+        antiguaPos = self.pieza.posicion
+        self.pieza.cambiarPos()
+
+        if self.fueraDeLimite():
+            self.pieza.posicion = antiguaPos
